@@ -400,3 +400,24 @@ task.wait(3)
 TweenService:Create(Notif, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -125, 0, -50)}):Play()
 task.wait(0.5)
 Notif:Destroy()
+
+
+
+
+setclipboard[[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/thiccnegative123/elemental-magic-arena/refs/heads/main/elemental%20magic%20arena%20gui"))()]]
+
+
+game.StarterGui:SetCore("SendNotification", {
+    Title = "shitty ass spammer";
+    Text = "Made by Haxarebest2";
+    Duration = 5
+    })
+
+
+game.StarterGui:SetCore("SendNotification", {
+    Title = "script auto copied";
+    Text = "enjoy destroying those shits";
+    Duration = 5
+    })
