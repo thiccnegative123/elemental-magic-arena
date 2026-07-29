@@ -1,0 +1,402 @@
+--// Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+--// Local Player
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+--// Configuration
+local SpammerConfig = {
+    Light = {
+        Enabled = false,
+        Name = "Light / Wrath of God",
+        Color = Color3.fromRGB(255, 255, 150)
+    },
+    FirePillar = {
+        Enabled = false,
+        Name = "Fire Pillar",
+        Color = Color3.fromRGB(255, 100, 50)
+    },
+    FireGreatSword = {
+        Enabled = false,
+        Name = "Fire GreatSword",
+        Color = Color3.fromRGB(255, 80, 30)
+    },
+    Earth = {
+        Enabled = false,
+        Name = "Earth Throw",
+        Color = Color3.fromRGB(139, 90, 43)
+    },
+    Disco = {
+        Enabled = false,
+        Name = "Sound Staff",
+        Color = Color3.fromRGB(255, 50, 255)
+    },
+    DiamondCollector = {
+        Enabled = false,
+        Name = "Diamond Collector",
+        Color = Color3.fromRGB(100, 200, 255)
+    }
+}
+
+--// Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AttackSpammerGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+--// Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 280, 0, 440)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -220)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+--// Corner
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = MainFrame
+
+--// Stroke
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(60, 60, 70)
+Stroke.Thickness = 2
+Stroke.Parent = MainFrame
+
+--// Title
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+Title.BorderSizePixel = 0
+Title.Text = "⚔️ Attack Spammer"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = Title
+
+--// Container for buttons
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Size = UDim2.new(1, -20, 1, -65)
+Container.Position = UDim2.new(0, 10, 0, 55)
+Container.BackgroundTransparency = 1
+Container.Parent = MainFrame
+
+local ListLayout = Instance.new("UIListLayout")
+ListLayout.Padding = UDim.new(0, 10)
+ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ListLayout.Parent = Container
+
+--// Toggle Button Creator
+local function CreateToggleButton(configKey)
+    local config = SpammerConfig[configKey]
+    
+    local Button = Instance.new("TextButton")
+    Button.Name = configKey .. "Toggle"
+    Button.Size = UDim2.new(1, 0, 0, 50)
+    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    Button.BorderSizePixel = 0
+    Button.Text = "⛔ " .. config.Name
+    Button.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Button.TextSize = 16
+    Button.Font = Enum.Font.GothamSemibold
+    Button.AutoButtonColor = false
+    Button.Parent = Container
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.Parent = Button
+    
+    --// Status Indicator
+    local Status = Instance.new("Frame")
+    Status.Name = "Status"
+    Status.Size = UDim2.new(0, 12, 0, 12)
+    Status.Position = UDim2.new(0, 15, 0.5, -6)
+    Status.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    Status.BorderSizePixel = 0
+    Status.Parent = Button
+    
+    local StatusCorner = Instance.new("UICorner")
+    StatusCorner.CornerRadius = UDim.new(1, 0)
+    StatusCorner.Parent = Status
+    
+    --// Click Handler
+    Button.MouseButton1Click:Connect(function()
+        config.Enabled = not config.Enabled
+        
+        if config.Enabled then
+            Button.Text = "✅ " .. config.Name
+            Button.BackgroundColor3 = config.Color
+            Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            Status.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
+        else
+            Button.Text = "⛔ " .. config.Name
+            Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+            Button.TextColor3 = Color3.fromRGB(200, 200, 200)
+            Status.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        end
+    end)
+    
+    --// Hover Effects
+    Button.MouseEnter:Connect(function()
+        if not config.Enabled then
+            TweenService:Create(Button, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+            }):Play()
+        end
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        if not config.Enabled then
+            TweenService:Create(Button, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+            }):Play()
+        end
+    end)
+    
+    return Button
+end
+
+--// Create Toggle Buttons
+CreateToggleButton("Light")
+CreateToggleButton("FirePillar")
+CreateToggleButton("FireGreatSword")
+CreateToggleButton("Earth")
+CreateToggleButton("Disco")
+CreateToggleButton("DiamondCollector")
+
+--// Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "Close"
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -40, 0, 7)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 16
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+--// Minimize Button
+local MinBtn = Instance.new("TextButton")
+MinBtn.Name = "Minimize"
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -75, 0, 7)
+MinBtn.BackgroundColor3 = Color3.fromRGB(255, 180, 50)
+MinBtn.BorderSizePixel = 0
+MinBtn.Text = "−"
+MinBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+MinBtn.TextSize = 20
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.Parent = MainFrame
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 8)
+MinCorner.Parent = MinBtn
+
+local Minimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    Minimized = not Minimized
+    Container.Visible = not Minimized
+    Title.Visible = not Minimized
+    MainFrame.Size = Minimized and UDim2.new(0, 150, 0, 45) or UDim2.new(0, 280, 0, 440)
+    MainFrame.Position = Minimized and UDim2.new(0.5, -75, 0.5, -220) or UDim2.new(0.5, -140, 0.5, -220)
+    MinBtn.Text = Minimized and "+" or "−"
+end)
+
+--// Dragging
+local Dragging = false
+local DragStart = nil
+local StartPos = nil
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Dragging = true
+        DragStart = input.Position
+        StartPos = MainFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local Delta = input.Position - DragStart
+        MainFrame.Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + Delta.X, StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Dragging = false
+    end
+end)
+
+--// Hotkey (Right Ctrl to toggle GUI)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+        ScreenGui.Enabled = not ScreenGui.Enabled
+    end
+end)
+
+--// Spam Loops
+task.spawn(function()
+    while task.wait() do
+        if SpammerConfig.Light.Enabled then
+            pcall(function()
+                ReplicatedStorage:WaitForChild("RempteFolder"):WaitForChild("Server"):FireServer({
+                    ["skill"] = "WarthofGod",
+                    ["Function"] = "Start",
+                })
+            end)
+        end
+    end
+end)
+
+--// Fire Pillar - Now uses LocalPlayer
+task.spawn(function()
+    while task.wait() do
+        if SpammerConfig.FirePillar.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                if Character then
+                    local FirePillar = Character:FindFirstChild("Fire Pillar")
+                    if FirePillar then
+                        local FlamePillar = FirePillar:FindFirstChild("Flame Pillar[X]")
+                        if FlamePillar then
+                            local Mera = FlamePillar:FindFirstChild("Mera")
+                            if Mera and Mera:IsA("RemoteEvent") then
+                                Mera:FireServer("PillarStart")
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--// Fire GreatSword - Uses LocalPlayer and Vector3 coordinates - 0.04 delay
+task.spawn(function()
+    while task.wait(0.04) do
+        if SpammerConfig.FireGreatSword.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                if Character then
+                    local FireGreatSword = Character:FindFirstChild("Fire GreatSword")
+                    if FireGreatSword then
+                        local Event = FireGreatSword:FindFirstChild("Event")
+                        if Event and Event:IsA("RemoteEvent") then
+                            Event:FireServer(Vector3.new(1127.966064453125, -117.14257049560547, 83.66075134277344))
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--// Earth Throw Loop - 0.07 delay
+task.spawn(function()
+    while task.wait(0.07) do
+        if SpammerConfig.Earth.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                if Character then
+                    local EarthThrow = Character:FindFirstChild("Earth Throw")
+                    if EarthThrow then
+                        local Shoot = EarthThrow:FindFirstChild("Shoot")
+                        if Shoot and Shoot:IsA("RemoteEvent") then
+                            Shoot:FireServer()
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if SpammerConfig.Disco.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                if Character then
+                    local SoundStaff = Character:FindFirstChild("Sound Staff")
+                    if SoundStaff then
+                        local QAttack = SoundStaff:FindFirstChild("QAttack")
+                        if QAttack and QAttack:IsA("RemoteEvent") then
+                            QAttack:FireServer()
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--// Diamond Collector - Teleports ALL objects with "diamond" in name to player + no collision
+task.spawn(function()
+    while task.wait() do
+        if SpammerConfig.DiamondCollector.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                if Character then
+                    local hrp = Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        for _, obj in pairs(workspace:GetDescendants()) do
+                            if obj:IsA("BasePart") and obj.Name:lower():find("diamond") then
+                                obj.CFrame = hrp.CFrame
+                                obj.CanCollide = false
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--// Character Added Handler (reconnect tools)
+LocalPlayer.CharacterAdded:Connect(function()
+    -- Tools will auto-refresh on respawn due to the FindFirstChild checks above
+end)
+
+--// Notification
+local Notif = Instance.new("TextLabel")
+Notif.Size = UDim2.new(0, 250, 0, 40)
+Notif.Position = UDim2.new(0.5, -125, 0, -50)
+Notif.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+Notif.BorderSizePixel = 0
+Notif.Text = "GUI Loaded! Press Right Ctrl to toggle"
+Notif.TextColor3 = Color3.fromRGB(255, 255, 255)
+Notif.TextSize = 14
+Notif.Font = Enum.Font.GothamSemibold
+Notif.Parent = ScreenGui
+
+local NotifCorner = Instance.new("UICorner")
+NotifCorner.CornerRadius = UDim.new(0, 8)
+NotifCorner.Parent = Notif
+
+TweenService:Create(Notif, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -125, 0, 20)}):Play()
+task.wait(3)
+TweenService:Create(Notif, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -125, 0, -50)}):Play()
+task.wait(0.5)
+Notif:Destroy()
