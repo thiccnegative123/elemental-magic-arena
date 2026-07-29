@@ -12,7 +12,7 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local SpammerConfig = {
     Light = {
         Enabled = false,
-        Name = "Light (all abillities)",
+        Name = "Light (all abilities)",
         Color = Color3.fromRGB(255, 255, 150)
     },
     FirePillar = {
@@ -27,7 +27,7 @@ local SpammerConfig = {
     },
     Earth = {
         Enabled = false,
-        Name = "Earth Throw (earth)",
+        Name = "Earth Throw (Earth)",
         Color = Color3.fromRGB(139, 90, 43)
     },
     Disco = {
@@ -39,6 +39,11 @@ local SpammerConfig = {
         Enabled = false,
         Name = "Diamond Collector",
         Color = Color3.fromRGB(100, 200, 255)
+    },
+    KillPlayer = {
+        Enabled = false,
+        Name = "Kill nearest player",
+        Color = Color3.fromRGB(255, 0, 0)
     }
 }
 
@@ -51,8 +56,8 @@ ScreenGui.Parent = PlayerGui
 --// Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 280, 0, 440)
-MainFrame.Position = UDim2.new(0.5, -140, 0.5, -220)
+MainFrame.Size = UDim2.new(0, 280, 0, 490)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -245)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -100,7 +105,7 @@ ListLayout.Parent = Container
 --// Toggle Button Creator
 local function CreateToggleButton(configKey)
     local config = SpammerConfig[configKey]
-    
+
     local Button = Instance.new("TextButton")
     Button.Name = configKey .. "Toggle"
     Button.Size = UDim2.new(1, 0, 0, 50)
@@ -112,11 +117,11 @@ local function CreateToggleButton(configKey)
     Button.Font = Enum.Font.GothamSemibold
     Button.AutoButtonColor = false
     Button.Parent = Container
-    
+
     local ButtonCorner = Instance.new("UICorner")
     ButtonCorner.CornerRadius = UDim.new(0, 8)
     ButtonCorner.Parent = Button
-    
+
     --// Status Indicator
     local Status = Instance.new("Frame")
     Status.Name = "Status"
@@ -125,15 +130,15 @@ local function CreateToggleButton(configKey)
     Status.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
     Status.BorderSizePixel = 0
     Status.Parent = Button
-    
+
     local StatusCorner = Instance.new("UICorner")
     StatusCorner.CornerRadius = UDim.new(1, 0)
     StatusCorner.Parent = Status
-    
+
     --// Click Handler
     Button.MouseButton1Click:Connect(function()
         config.Enabled = not config.Enabled
-        
+
         if config.Enabled then
             Button.Text = "✅ " .. config.Name
             Button.BackgroundColor3 = config.Color
@@ -146,7 +151,7 @@ local function CreateToggleButton(configKey)
             Status.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
         end
     end)
-    
+
     --// Hover Effects
     Button.MouseEnter:Connect(function()
         if not config.Enabled then
@@ -155,7 +160,7 @@ local function CreateToggleButton(configKey)
             }):Play()
         end
     end)
-    
+
     Button.MouseLeave:Connect(function()
         if not config.Enabled then
             TweenService:Create(Button, TweenInfo.new(0.2), {
@@ -163,7 +168,7 @@ local function CreateToggleButton(configKey)
             }):Play()
         end
     end)
-    
+
     return Button
 end
 
@@ -174,6 +179,7 @@ CreateToggleButton("FireGreatSword")
 CreateToggleButton("Earth")
 CreateToggleButton("Disco")
 CreateToggleButton("DiamondCollector")
+CreateToggleButton("KillPlayer")
 
 --// Close Button
 local CloseBtn = Instance.new("TextButton")
@@ -218,8 +224,8 @@ MinBtn.MouseButton1Click:Connect(function()
     Minimized = not Minimized
     Container.Visible = not Minimized
     Title.Visible = not Minimized
-    MainFrame.Size = Minimized and UDim2.new(0, 150, 0, 45) or UDim2.new(0, 280, 0, 440)
-    MainFrame.Position = Minimized and UDim2.new(0.5, -75, 0.5, -220) or UDim2.new(0.5, -140, 0.5, -220)
+    MainFrame.Size = Minimized and UDim2.new(0, 150, 0, 45) or UDim2.new(0, 280, 0, 490)
+    MainFrame.Position = Minimized and UDim2.new(0.5, -75, 0.5, -245) or UDim2.new(0.5, -140, 0.5, -245)
     MinBtn.Text = Minimized and "+" or "−"
 end)
 
@@ -270,7 +276,7 @@ task.spawn(function()
     end
 end)
 
---// Fire Pillar - Now uses LocalPlayer
+--// Fire Pillar
 task.spawn(function()
     while task.wait() do
         if SpammerConfig.FirePillar.Enabled then
@@ -293,7 +299,7 @@ task.spawn(function()
     end
 end)
 
---// Fire GreatSword - Uses LocalPlayer and Vector3 coordinates - 0.04 delay
+--// Fire GreatSword
 task.spawn(function()
     while task.wait(0.04) do
         if SpammerConfig.FireGreatSword.Enabled then
@@ -313,7 +319,7 @@ task.spawn(function()
     end
 end)
 
---// Earth Throw Loop - 0.07 delay
+--// Earth Throw Loop
 task.spawn(function()
     while task.wait(0.07) do
         if SpammerConfig.Earth.Enabled then
@@ -333,6 +339,7 @@ task.spawn(function()
     end
 end)
 
+--// Disco (Sound Staff)
 task.spawn(function()
     while task.wait() do
         if SpammerConfig.Disco.Enabled then
@@ -352,7 +359,7 @@ task.spawn(function()
     end
 end)
 
---// Diamond Collector - Teleports ALL objects with "diamond" in name to player + no collision
+--// Diamond Collector
 task.spawn(function()
     while task.wait() do
         if SpammerConfig.DiamondCollector.Enabled then
@@ -374,9 +381,66 @@ task.spawn(function()
     end
 end)
 
---// Character Added Handler (reconnect tools)
+--// ===== Kill Player Loop (with death checks) =====
+--// Finds the nearest ALIVE player, teleports to them, and lets toggled abilities spam
+task.spawn(function()
+    while task.wait() do
+        if SpammerConfig.KillPlayer.Enabled then
+            pcall(function()
+                local Character = LocalPlayer.Character
+                --// Death check #1: Make sure we have a character and are alive
+                if not Character then return end
+
+                local Humanoid = Character:FindFirstChild("Humanoid")
+                if not Humanoid or Humanoid.Health <= 0 then return end
+
+                local hrp = Character:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+
+                -- Find the nearest ALIVE player
+                local nearestPlayer = nil
+                local nearestDistance = math.huge
+
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer then
+                        local targetChar = player.Character
+                        --// Death check #2: Target must have a character
+                        if targetChar then
+                            local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                            local targetHumanoid = targetChar:FindFirstChild("Humanoid")
+                            --// Death check #3: Target must be alive (Humanoid exists, health > 0)
+                            if targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
+                                local distance = (hrp.Position - targetHrp.Position).Magnitude
+                                if distance < nearestDistance then
+                                    nearestDistance = distance
+                                    nearestPlayer = player
+                                end
+                            end
+                        end
+                    end
+                end
+
+                -- Teleport to nearest alive player if found
+                if nearestPlayer then
+                    local targetChar = nearestPlayer.Character
+                    if targetChar then
+                        local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                        local targetHumanoid = targetChar:FindFirstChild("Humanoid")
+                        --// Death check #4: Re-verify before teleporting (race condition safety)
+                        if targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
+                            hrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 3)
+                            hrp.Velocity = Vector3.new(0, 0, 0)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--// Character Added Handler
 LocalPlayer.CharacterAdded:Connect(function()
-    -- Tools will auto-refresh on respawn due to the FindFirstChild checks above
+    -- Tools auto-refresh on respawn due to FindFirstChild checks
 end)
 
 --// Notification
@@ -401,23 +465,18 @@ TweenService:Create(Notif, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -125, 
 task.wait(0.5)
 Notif:Destroy()
 
-
-
-
 setclipboard[[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/thiccnegative123/elemental-magic-arena/refs/heads/main/elemental%20magic%20arena%20gui"))()]]
-
 
 game.StarterGui:SetCore("SendNotification", {
     Title = "shitty ass spammer";
     Text = "Made by Haxarebest2";
     Duration = 5
-    })
-
+})
 
 game.StarterGui:SetCore("SendNotification", {
     Title = "script auto copied";
     Text = "enjoy destroying those shits";
     Duration = 5
-    })
+})
