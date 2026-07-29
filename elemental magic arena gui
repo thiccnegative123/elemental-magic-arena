@@ -12,27 +12,27 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local SpammerConfig = {
     Light = {
         Enabled = false,
-        Name = "Light / Wrath of God",
+        Name = "Light (all abillities)",
         Color = Color3.fromRGB(255, 255, 150)
     },
     FirePillar = {
         Enabled = false,
-        Name = "Fire Pillar",
+        Name = "Fire Pillar (Fire)",
         Color = Color3.fromRGB(255, 100, 50)
     },
     FireGreatSword = {
         Enabled = false,
-        Name = "Fire GreatSword",
+        Name = "Fire GreatSword (Fire)",
         Color = Color3.fromRGB(255, 80, 30)
     },
     Earth = {
         Enabled = false,
-        Name = "Earth Throw",
+        Name = "Earth Throw (earth)",
         Color = Color3.fromRGB(139, 90, 43)
     },
     Disco = {
         Enabled = false,
-        Name = "Sound Staff",
+        Name = "Sound Staff (Disco)",
         Color = Color3.fromRGB(255, 50, 255)
     },
     DiamondCollector = {
