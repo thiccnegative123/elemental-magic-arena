@@ -382,35 +382,127 @@ task.spawn(function()
     end
 end)
 
---// ===== Kill Player Loop (with death checks) =====
---// Finds the nearest ALIVE player, teleports to them, and lets toggled abilities spam
+--// ===== Kill Player Loop (forcefield-aware + behind/above) =====
+local forcefieldWatching = false
+local forcefieldWatchList = {}
+
 task.spawn(function()
     while task.wait() do
         if SpammerConfig.KillPlayer.Enabled then
             pcall(function()
                 local Character = LocalPlayer.Character
-                --// Death check #1: Make sure we have a character and are alive
                 if not Character then return end
-
                 local Humanoid = Character:FindFirstChild("Humanoid")
                 if not Humanoid or Humanoid.Health <= 0 then return end
-
                 local hrp = Character:FindFirstChild("HumanoidRootPart")
                 if not hrp then return end
 
-                -- Find the nearest ALIVE player
-                local nearestPlayer = nil
-                local nearestDistance = math.huge
-
+                -- Collect alive players
+                local alivePlayers = {}
                 for _, player in pairs(Players:GetPlayers()) do
                     if player ~= LocalPlayer then
                         local targetChar = player.Character
-                        --// Death check #2: Target must have a character
                         if targetChar then
                             local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
                             local targetHumanoid = targetChar:FindFirstChild("Humanoid")
-                            --// Death check #3: Target must be alive (Humanoid exists, health > 0)
                             if targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
+                                table.insert(alivePlayers, player)
+                            end
+                        end
+                    end
+                end
+                if #alivePlayers == 0 then return end
+
+                -- Check forcefield status of all alive players
+                local allHaveFF = true
+                local noFFPlayers = {} -- players without forcefield
+                local hasFFPlayers = {} -- players with forcefield
+
+                for _, player in ipairs(alivePlayers) do
+                    local targetChar = player.Character
+                    if targetChar then
+                        if targetChar:FindFirstChildOfClass("ForceField") then
+                            table.insert(hasFFPlayers, player)
+                        else
+                            allHaveFF = false
+                            table.insert(noFFPlayers, player)
+                        end
+                    end
+                end
+
+                --// FORCEFIELD WATCH MODE
+                -- If EVERY alive player has a forcefield, enter watch mode
+                if allHaveFF then
+                    if not forcefieldWatching then
+                        forcefieldWatching = true
+                        forcefieldWatchList = {}
+                        -- Snapshot the list of players currently with forcefields
+                        for _, player in ipairs(hasFFPlayers) do
+                            table.insert(forcefieldWatchList, player)
+                        end
+                    end
+
+                    -- Poll: check if any watched player's forcefield dropped
+                    local droppedTarget = nil
+                    for _, player in ipairs(forcefieldWatchList) do
+                        local targetChar = player.Character
+                        if targetChar then
+                            local ff = targetChar:FindFirstChildOfClass("ForceField")
+                            local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                            local targetHumanoid = targetChar:FindFirstChild("Humanoid")
+                            if not ff and targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
+                                droppedTarget = player
+                                break
+                            end
+                        end
+                    end
+
+                    -- If someone's forcefield dropped, teleport behind them immediately
+                    if droppedTarget then
+                        forcefieldWatching = false
+                        forcefieldWatchList = {}
+                        local targetChar = droppedTarget.Character
+                        if targetChar then
+                            local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                            if targetHrp then
+                                hrp.CFrame = targetHrp.CFrame * CFrame.new(0, 5, -3)
+                                hrp.Velocity = Vector3.new(0, 0, 0)
+                            end
+                        end
+                    end
+                    return -- skip regular targeting while all have forcefields
+                else
+                    -- Not all have forcefields — reset watch state
+                    forcefieldWatching = false
+                    forcefieldWatchList = {}
+                end
+
+                --// REGULAR TARGETING
+                -- Prefer players WITHOUT a forcefield
+                local nearestPlayer = nil
+                local nearestDistance = math.huge
+
+                for _, player in ipairs(noFFPlayers) do
+                    local targetChar = player.Character
+                    if targetChar then
+                        local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                        if targetHrp then
+                            local distance = (hrp.Position - targetHrp.Position).Magnitude
+                            if distance < nearestDistance then
+                                nearestDistance = distance
+                                nearestPlayer = player
+                            end
+                        end
+                    end
+                end
+
+                -- Fallback: if everyone has a forcefield, just target the nearest alive
+                if not nearestPlayer then
+                    for _, player in ipairs(alivePlayers) do
+                        local targetChar = player.Character
+                        if targetChar then
+                            local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                            if targetHrp then
                                 local distance = (hrp.Position - targetHrp.Position).Magnitude
                                 if distance < nearestDistance then
                                     nearestDistance = distance
@@ -421,15 +513,14 @@ task.spawn(function()
                     end
                 end
 
-                -- Teleport to nearest alive player if found
+                -- Teleport behind + above the target
                 if nearestPlayer then
                     local targetChar = nearestPlayer.Character
                     if targetChar then
                         local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
                         local targetHumanoid = targetChar:FindFirstChild("Humanoid")
-                        --// Death check #4: Re-verify before teleporting (race condition safety)
                         if targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
-                            hrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 3)
+                            hrp.CFrame = targetHrp.CFrame * CFrame.new(0, 5, -3)
                             hrp.Velocity = Vector3.new(0, 0, 0)
                         end
                     end
