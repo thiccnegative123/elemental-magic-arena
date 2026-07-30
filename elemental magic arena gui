@@ -1,4 +1,5 @@
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
 --// Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -360,7 +361,7 @@ task.spawn(function()
     end
 end)
 
---// Diamond Collector
+--// Diamond Collector (MODIFIED - Only "Diamond" or "DiamondDrop")
 task.spawn(function()
     while task.wait() do
         if SpammerConfig.DiamondCollector.Enabled then
@@ -370,7 +371,8 @@ task.spawn(function()
                     local hrp = Character:FindFirstChild("HumanoidRootPart")
                     if hrp then
                         for _, obj in pairs(workspace:GetDescendants()) do
-                            if obj:IsA("BasePart") and obj.Name:lower():find("diamond") then
+                            -- Only collect if name is exactly "Diamond" or "DiamondDrop"
+                            if obj:IsA("BasePart") and (obj.Name == "Diamond" or obj.Name == "DiamondDrop") then
                                 obj.CFrame = hrp.CFrame
                                 obj.CanCollide = false
                             end
